@@ -116,7 +116,6 @@ class BinaryParse:
             for pattern in patterns:
                 find_patterns = re.finditer(pattern, chunk)
                 for find in find_patterns:
-                    # print(find)
                     range_begin = offset + find.span()[0] // 2 - len(buffer) // 2
                     range_end = offset + find.span()[1] // 2 - len(buffer) // 2
                     if (range_begin, range_end) not in buffer_range:
@@ -142,3 +141,11 @@ class BinaryParse:
         """
 
         return self.find_pattern({f"(?=(..))\\1{{{threshold},}}": ''})
+
+    def find_zip_archives(self):
+        """Search all zip archives in file
+
+        Returns:
+            dict
+        """
+        return self.find_pattern({"504B0304": ''})

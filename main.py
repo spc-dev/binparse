@@ -21,14 +21,15 @@ def result_json(file_name):
     return decorator
 
 
-@result_json('./results')
+@result_json('./results.json')
 def main():
-    binparse = BinaryParse('/home/sergey/Документы/Development/Source/binary_parse/ansible-role-php-master.zip')
+    binparse = BinaryParse('/home/sergey/Документы/Development/Source/binary_parse/coral-qd1a.190821.007-factory-e915f51a.zip')
     # result = binparse.find_pattern({
-    #     '504B0304': 'zip'
+    #     '504B0304': 'zip',
+    #     '42F0FBB21BE9': 'test1'
     # })
 
-    result = binparse.find_repeat_sequences(3)
+    result = binparse.find_zip_archives()
 
     return result
 

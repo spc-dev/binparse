@@ -8,7 +8,9 @@ class TestBinaryParse(unittest.TestCase):
 
     def setUp(self) -> None:
         """Set fixtures for tests"""
-        self.file_path = './tests/test.zip'
+        # Change current dir to get test file 'test.zip'
+        os.chdir(os.path.dirname(os.path.abspath(__file__)))
+        self.file_path = './test.zip'
         self.file_size = os.path.getsize(self.file_path)
 
     def test_file_not_found(self):
@@ -148,6 +150,28 @@ class TestBinaryParse(unittest.TestCase):
         count = 0
 
         self.assertEqual(len(result['results']), 3)
+        for pattern, values in check_data.items():
+            self.assertEqual(result['results'][count]['range'], values['range'])
+            self.assertEqual(result['results'][count]['size'], values['size'])
+            self.assertEqual(result['results'][count]['pattern'], pattern)
+            count += 1
+
+    def test_find_zip_archives(self):
+        """Testing of searching for all zip archives in file"""
+
+        self.bin_parse = BinaryParse(self.file_path, 5)
+
+        result = self.bin_parse.find_zip_archives()
+
+        check_data = {
+            '504B0304': {
+                'range': (0, 4),
+                'size': 4,
+            }
+        }
+        count = 0
+
+        self.assertEqual(len(result['results']), 1)
         for pattern, values in check_data.items():
             self.assertEqual(result['results'][count]['range'], values['range'])
             self.assertEqual(result['results'][count]['size'], values['size'])
