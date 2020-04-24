@@ -23,7 +23,7 @@ def result_json(file_name):
 
 @result_json('./results.json')
 def main():
-    binparse = BinaryParse('/home/sergey/Документы/Development/Source/binary_parse/coral-qd1a.190821.007-factory-e915f51a.zip')
+    binparse = BinaryParse('file_name')
     # result = binparse.find_pattern({
     #     '504B0304': 'zip',
     #     '42F0FBB21BE9': 'test1'
