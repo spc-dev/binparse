@@ -116,6 +116,7 @@ class BinaryParse:
             for pattern in patterns:
                 find_patterns = re.finditer(pattern, chunk)
                 for find in find_patterns:
+                    # print(find)
                     range_begin = offset + find.span()[0] // 2 - len(buffer) // 2
                     range_end = offset + find.span()[1] // 2 - len(buffer) // 2
                     if (range_begin, range_end) not in buffer_range:
@@ -123,9 +124,21 @@ class BinaryParse:
                         result['results'].append({
                             'range': (range_begin, range_end),
                             'size': range_end - range_begin,
-                            'pattern': pattern
+                            'pattern': find.group(0)
                         })
             buffer = chunk[-max_len:]
             offset += chunk_size
 
         return result
+
+    def find_repeat_sequences(self, threshold):
+        """Search all repeat sequences in file
+
+        Args:
+            threshold (int): min length of  sequences
+
+        Returns:
+            dict
+        """
+
+        return self.find_pattern({f"(?=(..))\\1{{{threshold},}}": ''})

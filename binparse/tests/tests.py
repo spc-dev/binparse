@@ -125,6 +125,35 @@ class TestBinaryParse(unittest.TestCase):
             self.assertEqual(result['results'][count]['pattern'], pattern)
             count += 1
 
+    def test_find_repeat_sequences(self):
+        """Test find all repeat sequences with length 3."""
+        self.bin_parse = BinaryParse(self.file_path, 5)
+
+        result = self.bin_parse.find_repeat_sequences(5)
+
+        check_data = {
+            '0000000000000000': {
+                'range': (13, 21),
+                'size': 8
+            },
+            '000000000000000000': {
+                'range': (137, 146),
+                'size': 9
+            },
+            '0000000000': {
+                'range': (206, 211),
+                'size': 5
+            }
+        }
+        count = 0
+
+        self.assertEqual(len(result['results']), 3)
+        for pattern, values in check_data.items():
+            self.assertEqual(result['results'][count]['range'], values['range'])
+            self.assertEqual(result['results'][count]['size'], values['size'])
+            self.assertEqual(result['results'][count]['pattern'], pattern)
+            count += 1
+
 
 if __name__ == '__main__':
     unittest.main()
