@@ -103,16 +103,29 @@ class BinaryParse:
             'results': []
         }
 
+        # Save current offset from file beginning
         offset = 0
+
+        # Buffer bytes between parts of file
+        buffer = ''
+        max_len = max(map(len, patterns))
+        buffer_range = []
         for chunk_size, chunk in self.__read_next_chunk():
+            if buffer:
+                chunk = buffer + chunk
             for pattern in patterns:
                 find_patterns = re.finditer(pattern, chunk)
                 for find in find_patterns:
-                    result['results'].append({
-                        'range': f"({offset+find.span()[0] // 2}, {offset+find.span()[1] // 2})",
-                        'size': find.span()[1]//2 - find.span()[0] // 2,
-                        'pattern': pattern
-                    })
+                    range_begin = offset + find.span()[0] // 2 - len(buffer) // 2
+                    range_end = offset + find.span()[1] // 2 - len(buffer) // 2
+                    if (range_begin, range_end) not in buffer_range:
+                        buffer_range.append((range_begin, range_end))
+                        result['results'].append({
+                            'range': (range_begin, range_end),
+                            'size': range_end - range_begin,
+                            'pattern': pattern
+                        })
+            buffer = chunk[-max_len:]
             offset += chunk_size
 
         return result

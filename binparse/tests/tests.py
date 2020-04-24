@@ -50,7 +50,7 @@ class TestBinaryParse(unittest.TestCase):
         self.assertIsInstance(result['results'], list)
 
     def test_find_patterns_one(self):
-        """Test find one pattern in file without splits"""
+        """Test find one pattern in entire file"""
         self.bin_parse = BinaryParse(self.file_path, 1)
 
         result = self.bin_parse.find_pattern({
@@ -58,24 +58,72 @@ class TestBinaryParse(unittest.TestCase):
         })
 
         self.assertEqual(len(result['results']), 1)
-        self.assertEqual(result['results'][0]['range'], "(0, 4)")
+        self.assertEqual(result['results'][0]['range'], (0, 4))
         self.assertEqual(result['results'][0]['size'], 4)
         self.assertEqual(result['results'][0]['pattern'], '504B0304')
 
     def test_find_patterns_repeat(self):
-        """Test find repeat patterns in file without splits"""
+        """Test find repeat patterns in entire file"""
         self.bin_parse = BinaryParse(self.file_path, 1)
 
         result = self.bin_parse.find_pattern({
             '63A1': 'c.',
         })
 
-        ranges = ["(40, 42)", "(44, 46)", "(48, 50)", "(163, 165)", "(167, 169)", "(171, 173)"]
+        ranges = [(40, 42), (44, 46), (48, 50), (163, 165), (167, 169), (171, 173)]
         self.assertEqual(len(result['results']), 6)
         for i in range(6):
             self.assertEqual(result['results'][i]['range'], ranges[i])
             self.assertEqual(result['results'][i]['size'], 2)
             self.assertEqual(result['results'][i]['pattern'], '63A1')
+
+    def test_find_patterns_split_pattern(self):
+        """Test find one pattern in split file.
+
+        Search pattern is split to different file parts
+        """
+        self.bin_parse = BinaryParse(self.file_path, 5)
+
+        result = self.bin_parse.find_pattern({
+            'B4FCA2DCC492': '......'
+        })
+
+        check_data = {
+            'B4FCA2DCC492': (80, 86),
+        }
+        count = 0
+
+        self.assertEqual(len(result['results']), 1)
+        for pattern, range in check_data.items():
+            self.assertEqual(result['results'][count]['range'], range)
+            self.assertEqual(result['results'][count]['size'], 6)
+            self.assertEqual(result['results'][count]['pattern'], pattern)
+            count += 1
+
+    def test_find_patterns_split_two_patterns(self):
+        """Test find two pattern in split file.
+
+        Search two patterns neighboring in different file parts
+        """
+        self.bin_parse = BinaryParse(self.file_path, 5)
+
+        result = self.bin_parse.find_pattern({
+            'FCA2DC': '...',
+            'C492CC': '...'
+        })
+
+        check_data = {
+            'FCA2DC': (81, 84),
+            'C492CC': (84, 87)
+        }
+        count = 0
+
+        self.assertEqual(len(result['results']), 2)
+        for pattern, range in check_data.items():
+            self.assertEqual(result['results'][count]['range'], range)
+            self.assertEqual(result['results'][count]['size'], 3)
+            self.assertEqual(result['results'][count]['pattern'], pattern)
+            count += 1
 
 
 if __name__ == '__main__':
